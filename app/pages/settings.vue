@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center justify-center gap-4 h-screen">
+  <div class="flex flex-col items-center gap-4 h-screen pt-[33vh]">
     <h1 class="font-bold text-2xl text-(--ui-primary)">
       Settings
     </h1>

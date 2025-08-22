@@ -148,7 +148,7 @@ function ensureItemFormat(item) {
 <template>
   <div class="flex flex-col items-center min-h-screen">
     <!-- Header with spacing -->
-    <div class="w-full pt-6">
+    <div class="w-full" style="padding-top: calc(33vh - 1.5rem);">
       <div class="sticky top-4 w-full z-20">
         <div class="max-w-4xl mx-auto px-4 flex flex-col items-center gap-4">
           <div class="flex items-center gap-4">
@@ -166,7 +166,7 @@ function ensureItemFormat(item) {
             <!-- List Selector Dropdown -->
             <div class="relative dropdown-container w-64">
               <button
-                class="w-full px-4 py-2 rounded border border-gray-300 flex items-center justify-between bg-white"
+                class="w-full px-4 py-2 rounded border border-gray-300 flex items-center justify-between"
                 @click.stop="showDropdown = !showDropdown"
               >
                 <span>{{ lists[selectedListIdx]?.name || 'Select List' }}</span>
@@ -176,10 +176,10 @@ function ensureItemFormat(item) {
               <!-- Dropdown Menu -->
               <div
                 v-if="showDropdown"
-                class="absolute top-full mt-1 w-full border border-gray-300 rounded bg-white z-10"
+                class="absolute top-full mt-1 w-full border border-gray-300 rounded z-10"
               >
                 <div v-for="(list, idx) in lists" :key="list.name">
-                  <div class="flex items-center justify-between px-4 py-2 hover:bg-gray-50 border-b border-gray-200">
+                  <div class="flex items-center justify-between px-4 py-2 border-b border-gray-200">
                     <button
                       class="px-2 text-gray-500"
                       title="Reorder list"
