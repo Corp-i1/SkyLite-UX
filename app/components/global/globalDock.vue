@@ -16,13 +16,13 @@ function isActivePath(path: string) {
 
 <template>
   <div class="sticky bottom-0 left-0 w-full h-[50px] bg-default flex items-center justify-evenly px-4 z-100">
-    <UButton
-      :class="isActivePath('/calendar') ? 'text-primary' : 'text-default'"
+    <!-- <ubutton
+      :class="isactivepath('/calendar') ? 'text-primary' : 'text-default'"
       to="/calendar"
       variant="ghost"
       icon="i-lucide-calendar-days"
       size="xl"
-    />
+    /> -->
     <UButton
       :class="isActivePath('/todolists') ? 'text-primary' : 'text-default'"
       to="/todolists"

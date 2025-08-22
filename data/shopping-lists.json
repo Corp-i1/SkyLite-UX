@@ -1,0 +1,21 @@
+[
+  {
+    "name": "Main List",
+    "items": [
+      {
+        "name": "TESFS",
+        "quantity": 1,
+        "checked": false
+      },
+      {
+        "name": "adawd",
+        "quantity": 1,
+        "checked": false
+      }
+    ]
+  },
+  {
+    "name": "Tes",
+    "items": []
+  }
+]
