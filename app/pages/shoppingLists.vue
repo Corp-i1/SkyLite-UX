@@ -1,27 +1,3 @@
-<<<<<<< Updated upstream
-<template>
-  <div class="flex flex-col items-center justify-center gap-4 h-screen">
-    <h1 class="font-bold text-2xl text-(--ui-primary)">
-      Shopping Lists
-    </h1>
-
-    <div class="flex items-center gap-2">
-      <UButton
-        label="Documentation"
-        icon="i-lucide-square-play"
-        to="https://ui.nuxt.com/getting-started/installation/nuxt"
-        target="_blank"
-      />
-
-      <UButton
-        label="GitHub"
-        color="neutral"
-        variant="outline"
-        icon="i-simple-icons-github"
-        to="https://github.com/nuxt/ui"
-        target="_blank"
-      />
-=======
 <script setup>
 import { onMounted, ref } from "vue";
 
@@ -307,7 +283,6 @@ function ensureItemFormat(item) {
                   class="absolute top-full mt-1 w-full border border-gray-700 rounded bg-gray-800 z-10 shadow-md"
                 >
                   <div class="p-2">
-                    
                     <div
                       v-for="cat in categories"
                       :key="cat"
@@ -321,7 +296,6 @@ function ensureItemFormat(item) {
                       >
                         ×
                       </button>
-                      
                     </div>
                     <form class="flex py-1" @submit.prevent="addCategory">
                       <input
@@ -433,7 +407,6 @@ function ensureItemFormat(item) {
           </div>
         </div>
       </div>
->>>>>>> Stashed changes
     </div>
   </div>
 </template>
