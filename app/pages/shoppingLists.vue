@@ -9,11 +9,13 @@ const selectedListIdx = ref(0);
 const newListName = ref("");
 const newItem = ref("");
 const newItemQuantity = ref(1);
+const newItemCategory = ref("Default");
 const loading = ref(true);
 const showDropdown = ref(false);
 const showCategoryDropdown = ref(false);
 const newCategory = ref("");
 const categories = ref(["Default"]);
+const selectedSortCategory = ref(""); // Empty string means show all
 
 const initialLoad = ref(true);
 
@@ -106,12 +108,13 @@ async function addItem() {
       name: itemName,
       quantity: Number.parseInt(newItemQuantity.value) || 1,
       checked: false,
-      category: categories.value[0], // Use first category (Default)
+      category: newItemCategory.value,
     };
     console.error("Adding new item:", newItemObj);
     lists.value[selectedListIdx.value].items.push(newItemObj);
     newItem.value = "";
     newItemQuantity.value = 1;
+    // Don't reset category - keep the last selected one for convenience
     await saveLists();
   }
 }
@@ -192,29 +195,38 @@ function ensureItemFormat(item) {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-start justify-center" style="padding-top: 33vh;">
-    <!-- Main Container -->
-    <div class="w-full max-w-2xl px-4">
-      <div class="flex flex-col items-center gap-6">
+  <div
+    class="min-h-screen flex justify-center"
+    :class="{
+      'items-center': loading || (lists.length === 0),
+      'items-start pt-24': !loading && lists.length > 0,
+    }"
+  >
+    <div class="w-full max-w-2xl px-2 sm:px-4">
+      <div class="flex flex-col items-center gap-4 sm:gap-6">
         <!-- Title and Status -->
-        <div class="flex items-center gap-4">
-          <h1 class="font-bold text-2xl text-(--ui-primary)">
+        <div class="flex items-center gap-2 sm:gap-4">
+          <h1 class="font-bold text-xl sm:text-2xl text-(--ui-primary)">
             Shopping Lists
           </h1>
-          <span v-if="saving" class="text-sm text-gray-500">
+          <span v-if="saving" class="text-xs sm:text-sm text-gray-500">
             Saving...
           </span>
         </div>
 
-        <div v-if="loading" class="text-gray-500">
+        <div v-if="loading" class="text-gray-500 text-lg animate-pulse">
           Loading...
+        </div>
+
+        <div v-else-if="!lists.length" class="text-gray-500 text-lg text-center">
+          <p>No shopping lists yet.</p>
         </div>
 
         <div v-else class="w-full flex flex-col items-center gap-6">
           <!-- List Selector Dropdown -->
-          <div class="relative dropdown-container w-64">
+          <div class="relative dropdown-container w-full sm:w-64">
             <button
-              class="w-full px-4 py-2 rounded border border-gray-300 bg-gray-800 flex items-center justify-between"
+              class="w-full px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 flex items-center justify-between text-sm sm:text-base"
               @click.stop="showDropdown = !showDropdown"
             >
               <span>{{ lists[selectedListIdx]?.name || 'Select List' }}</span>
@@ -224,42 +236,45 @@ function ensureItemFormat(item) {
             <!-- Dropdown Menu -->
             <div
               v-if="showDropdown"
-              class="absolute top-full mt-1 w-full border border-gray-700 rounded bg-gray-800 z-10 shadow-md"
+              class="absolute top-full mt-1 w-full border rounded z-10 shadow-md bg-gray-50 dark:bg-gray-800"
             >
               <div v-for="(list, idx) in lists" :key="list.name">
-                <div class="flex items-center justify-between px-4 py-2 hover:bg-gray-700 border-b border-gray-700">
+                <div class="flex items-center justify-between px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 border-b dark:border-gray-700">
                   <button
-                    class="px-2 text-gray-300"
+                    class="px-2 dark:text-gray-200"
                     title="Reorder list"
                   >
                     ≡
                   </button>
                   <button
-                    class="flex-grow text-center text-white"
+                    class="flex-grow text-center dark:text-gray-200"
                     @click="selectList(idx); showDropdown = false"
                   >
                     {{ list.name }}
                   </button>
                   <button
                     v-if="lists.length > 1"
-                    class="px-2 text-red-400 hover:text-red-300"
+                    class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-500 hover:bg-red-600 text-white"
                     title="Delete list"
                     @click="removeList(idx)"
                   >
-                    ×
+                    ✕
                   </button>
                 </div>
               </div>
 
               <!-- Add List Form -->
-              <form class="flex gap-1 p-2 border-t border-gray-700 bg-gray-800" @submit.prevent="addList">
+              <form class="flex gap-1 p-2 border-t dark:border-gray-700" @submit.prevent="addList">
                 <input
                   v-model="newListName"
                   type="text"
                   placeholder="New list"
-                  class="flex-grow border border-gray-600 rounded px-2 py-1 bg-gray-700 text-white placeholder-gray-400"
+                  class="flex-grow border rounded px-2 py-1"
                 >
-                <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-500">
+                <button
+                  type="submit"
+                  class="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700"
+                >
                   +
                 </button>
               </form>
@@ -272,29 +287,43 @@ function ensureItemFormat(item) {
             <div class="flex gap-2 w-full max-w-lg mb-2">
               <div class="relative dropdown-container flex-1">
                 <button
-                  class="px-4 py-2 rounded border border-gray-300 bg-gray-800 flex items-center justify-between w-full"
+                  class="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 flex items-center justify-between w-full"
                   @click.stop="showCategoryDropdown = !showCategoryDropdown"
                 >
-                  <span class="text-white">Manage Categories</span>
-                  <span class="text-gray-500">▼</span>
+                  <span>{{ selectedSortCategory || 'All Categories' }}</span>
+                  <span>▼</span>
                 </button>
                 <div
                   v-if="showCategoryDropdown"
-                  class="absolute top-full mt-1 w-full border border-gray-700 rounded bg-gray-800 z-10 shadow-md"
+                  class="absolute top-full mt-1 w-full border rounded z-10 shadow-md bg-gray-50 dark:bg-gray-800"
                 >
                   <div class="p-2">
+                    <!-- Clear filter button -->
+                    <button
+                      class="w-full mb-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 flex items-center justify-center gap-2"
+                      @click="selectedSortCategory = ''"
+                    >
+                      <span>✕</span>
+                      <span>Clear Filter</span>
+                    </button>
+                    <div class="border-t dark:border-gray-700 mb-2" />
                     <div
                       v-for="cat in categories"
                       :key="cat"
-                      class="flex justify-between items-center px-2 py-1 text-white"
+                      class="flex justify-between items-center px-2 py-1 dark:text-gray-200 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700"
+                      @click="selectedSortCategory = cat === selectedSortCategory ? '' : cat"
                     >
-                      {{ cat }}
+                      <div class="flex items-center gap-2">
+                        <span v-if="cat === selectedSortCategory">●</span>
+                        <span v-else>○</span>
+                        {{ cat }}
+                      </div>
                       <button
                         v-if="cat !== 'Default'"
-                        class="text-red-400 hover:text-red-300"
-                        @click="removeCategory(cat)"
+                        class="w-6 h-6 flex items-center justify-center rounded-lg bg-red-500 hover:bg-red-600 text-white"
+                        @click.stop="removeCategory(cat)"
                       >
-                        ×
+                        ✕
                       </button>
                     </div>
                     <form class="flex py-1" @submit.prevent="addCategory">
@@ -302,9 +331,9 @@ function ensureItemFormat(item) {
                         v-model="newCategory"
                         type="text"
                         placeholder="New category"
-                        class="flex-grow border border-gray-600 rounded px-2 py-1 bg-gray-700 text-white placeholder-gray-400"
+                        class="flex-grow border rounded px-2 py-1"
                       >
-                      <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-500">
+                      <button type="submit" class="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700">
                         +
                       </button>
                     </form>
@@ -314,97 +343,115 @@ function ensureItemFormat(item) {
             </div>
 
             <!-- Add Item Form -->
-            <form class="flex gap-2 w-full max-w-lg" @submit.prevent="addItem">
+            <form class="flex flex-wrap sm:flex-nowrap gap-2 w-full max-w-lg" @submit.prevent="addItem">
               <input
                 v-model="newItem"
                 type="text"
                 placeholder="Add an item"
-                class="flex-1 border rounded px-2 py-1"
+                class="flex-1 min-w-[200px] rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200 border border-gray-200 dark:border-gray-700 px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
               >
-              <div class="flex items-center border rounded">
+              <div class="flex items-center">
                 <button
                   type="button"
-                  class="px-2 py-1 hover:bg-gray-800"
+                  class="w-8 sm:w-10 h-8 sm:h-10 flex items-center justify-center rounded-l-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 text-sm sm:text-base"
                   tabindex="-1"
                   @click="newItemQuantity = Math.max(1, Number(newItemQuantity) - 1)"
                 >
                   -
                 </button>
-                <span class="px-2">{{ newItemQuantity }}</span>
+                <span class="w-8 sm:w-10 h-8 sm:h-10 flex items-center justify-center text-center bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white text-sm sm:text-base border-t border-b border-gray-200 dark:border-gray-700">{{ newItemQuantity }}</span>
                 <button
                   type="button"
-                  class="px-2 py-1 hover:bg-gray-800"
+                  class="w-8 sm:w-10 h-8 sm:h-10 flex items-center justify-center rounded-r-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 text-sm sm:text-base"
                   tabindex="-1"
                   @click="newItemQuantity = Number(newItemQuantity) + 1"
                 >
                   +
                 </button>
-                <button type="submit" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
-                  Add
-                </button>
               </div>
-            </form>
-
-            <ul class="w-full max-w-lg mt-4">
-              <li
-                v-for="(item, idx) in lists[selectedListIdx].items"
-                :key="idx"
-                class="flex justify-between items-center border-b py-2"
+              <select
+                v-model="newItemCategory"
+                class="border rounded px-2 py-1 text-sm sm:text-base dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 min-w-[100px]"
+                title="Category"
               >
-                <div class="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    :checked="item.checked"
-                    class="w-4 h-4"
-                    @change="toggleItem(idx)"
-                  >
-                  <span :class="{ 'line-through text-gray-400': item.checked }">
-                    {{ typeof item === 'string' ? item : item.name }}
-                  </span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <!-- Category Dropdown -->
-                  <select
-                    :value="item.category"
-                    class="border rounded bg-gray-800 text-white px-2 py-1"
-                    @change="updateCategory(idx, $event.target.value)"
-                  >
-                    <option
-                      v-for="cat in categories"
-                      :key="cat"
-                      :value="cat"
-                    >
-                      {{ cat }}
-                    </option>
-                  </select>
+                <option
+                  v-for="cat in categories"
+                  :key="cat"
+                  :value="cat"
+                >
+                  {{ cat }}
+                </option>
+              </select>
+              <button
+                type="submit"
+                class="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 text-sm sm:text-base"
+              >
+                Add
+              </button>
+            </form>
+          </div>
 
-                  <!-- Quantity Control -->
-                  <div class="flex items-center border rounded">
-                    <button
-                      class="px-2 py-1 hover:bg-gray-800"
-                      @click="updateQuantity(idx, -1)"
-                    >
-                      -
-                    </button>
-                    <span class="px-2">{{ typeof item === 'string' ? 1 : item.quantity }}</span>
-                    <button
-                      class="px-2 py-1 hover:bg-gray-800"
-                      @click="updateQuantity(idx, 1)"
-                    >
-                      +
-                    </button>
-                  </div>
+          <ul class="w-full max-w-lg mt-4">
+            <li
+              v-for="(item, idx) in lists[selectedListIdx].items.filter(
+                item => !selectedSortCategory || item.category === selectedSortCategory,
+              )"
+              :key="idx"
+              class="flex justify-between items-center border-b py-2"
+            >
+              <div class="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  :checked="item.checked"
+                  class="w-4 h-4"
+                  @change="toggleItem(idx)"
+                >
+                <span :class="{ 'line-through text-gray-400': item.checked }">
+                  {{ typeof item === 'string' ? item : item.name }}
+                </span>
+              </div>
+              <div class="flex items-center gap-2">
+                <!-- Category Dropdown -->
+                <select
+                  :value="item.category"
+                  class="border rounded px-2 py-1 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700"
+                  @change="updateCategory(idx, $event.target.value)"
+                >
+                  <option
+                    v-for="cat in categories"
+                    :key="cat"
+                    :value="cat"
+                  >
+                    {{ cat }}
+                  </option>
+                </select>
 
+                <!-- Quantity Control -->
+                <div class="flex items-center">
                   <button
-                    class="text-red-500 hover:text-red-600"
-                    @click="removeItem(idx)"
+                    class="w-8 h-8 flex items-center justify-center rounded-l-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700"
+                    @click="updateQuantity(idx, -1)"
                   >
-                    X
+                    -
+                  </button>
+                  <span class="w-8 h-8 flex items-center justify-center text-center bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white border-t border-b border-gray-200 dark:border-gray-700">{{ typeof item === 'string' ? 1 : item.quantity }}</span>
+                  <button
+                    class="w-8 h-8 flex items-center justify-center rounded-r-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700"
+                    @click="updateQuantity(idx, 1)"
+                  >
+                    +
                   </button>
                 </div>
-              </li>
-            </ul>
-          </div>
+
+                <button
+                  class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-500 hover:bg-red-600 text-white"
+                  @click="removeItem(idx)"
+                >
+                  ✕
+                </button>
+              </div>
+            </li>
+          </ul>
         </div>
       </div>
     </div>
