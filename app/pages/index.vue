@@ -1,11 +1,11 @@
-<script setup lang="ts">
-// TODO: Authenticate user or route to login page
-// TODO: Choose default page based on user preference
-await navigateTo("/shoppingLists");
+<script setup>
+// This page will redirect based on auth state via the global middleware
 </script>
 
 <template>
-  <div>
-    <p>Redirecting to shoppingLists...</p>
+  <div class="flex items-center justify-center min-h-screen">
+    <p class="text-gray-600">
+      Redirecting...
+    </p>
   </div>
 </template>

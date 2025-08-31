@@ -8,6 +8,21 @@ export default defineNuxtConfig({
     "@nuxt/ui",
     "@nuxt/eslint",
   ],
+
+  app: {
+    layoutTransition: { name: "layout", mode: "out-in" },
+    pageTransition: { name: "page", mode: "out-in" },
+  },
+
+  nitro: {
+    moduleSideEffects: ["jsonwebtoken", "bcryptjs"],
+    alias: {
+      "#auth": "./server/utils",
+    },
+    experimental: {
+      asyncContext: true,
+    },
+  },
   eslint: {
     config: {
       standalone: false, // <---

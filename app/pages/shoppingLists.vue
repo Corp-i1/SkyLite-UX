@@ -223,20 +223,66 @@ function ensureItemFormat(item) {
         </div>
 
         <div v-else class="w-full flex flex-col items-center gap-6">
-          <!-- List Selector Dropdown -->
           <div class="relative dropdown-container w-full sm:w-64">
-            <button
-              class="w-full px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 flex items-center justify-between text-sm sm:text-base"
-              @click.stop="showDropdown = !showDropdown"
-            >
-              <span>{{ lists[selectedListIdx]?.name || 'Select List' }}</span>
-              <span class="text-gray-500">▼</span>
-            </button>
+            <!-- Flex container for dropdown and refresh button -->
+            <div class="flex items-center w-full gap-2 mt-2">
+              <!-- List Selector Dropdown -->
+              <button
+                class="w-full px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 flex items-center justify-between text-sm sm:text-base"
+                @click.stop="showDropdown = !showDropdown"
+              >
+                <span>{{ lists[selectedListIdx]?.name || 'Select List' }}</span>
+                <span class="text-gray-500">▼</span>
+              </button>
+              <!-- Refresh Button -->
+              <button
+                class="ml-auto px-3 py-2 rounded-lg bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-200 border border-blue-200 dark:border-blue-700 flex items-center gap-1 text-sm sm:text-base"
+                title="Refresh lists"
+                :disabled="loading"
+                @click="fetchLists"
+              >
+                <svg
+                  v-if="loading"
+                  class="w-4 h-4 animate-spin"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  />
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4l5-5-5-5v4A10 10 0 002 12h2z"
+                  />
+                </svg>
+                <svg
+                  v-else
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M4 4v5h.582M20 20v-5h-.581M5.21 17.293A9 9 0 1112 21a9 9 0 01-6.79-3.707"
+                  />
+                </svg>
+                <span class="hidden sm:inline">Refresh</span>
+              </button>
+            </div>
 
             <!-- Dropdown Menu -->
             <div
               v-if="showDropdown"
-              class="absolute top-full mt-1 w-full border rounded z-10 shadow-md bg-gray-50 dark:bg-gray-800"
+              class="absolute top-full mt-1 w-full border rounded z-20 shadow-md bg-gray-50 dark:bg-gray-800"
             >
               <div v-for="(list, idx) in lists" :key="list.name">
                 <div class="flex items-center justify-between px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 border-b dark:border-gray-700">
@@ -263,13 +309,16 @@ function ensureItemFormat(item) {
                 </div>
               </div>
 
-              <!-- Add List Form -->
-              <form class="flex gap-1 p-2 border-t dark:border-gray-700" @submit.prevent="addList">
+                <!-- Add List Form -->
+                <form
+                class="flex gap-1 p-1 border-t dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-b"
+                @submit.prevent="addList"
+                >
                 <input
                   v-model="newListName"
                   type="text"
                   placeholder="New list"
-                  class="flex-grow border rounded px-2 py-1"
+                  class="flex-grow border rounded px-1 py-1"
                 >
                 <button
                   type="submit"
@@ -277,7 +326,7 @@ function ensureItemFormat(item) {
                 >
                   +
                 </button>
-              </form>
+                </form>
             </div>
           </div>
 
